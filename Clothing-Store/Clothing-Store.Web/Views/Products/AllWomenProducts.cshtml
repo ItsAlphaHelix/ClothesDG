@@ -1,0 +1,37 @@
+﻿@using Clothing_Store.Core.ViewModels.Products;
+@using Clothing_Store.Core.ViewModels.Shared;
+@model PaginatedViewModel<ProductViewModel>
+
+@{
+    ViewData["Title"] = "Всички женски продукти";
+}
+
+@await Html.PartialAsync("_AppPartial")
+
+@section Scripts {
+    <script src="~/js/loadModalProductDetails.js"></script>
+    <script src="~/js/filterProducts.js"></script>
+    <script>
+        function handleChangeSizes(element) {
+            callOnChangeSizes(element, sorting);
+        }
+        function handleChangeProducts(element) {
+            callChangeProducts(element, sorting)
+        }
+        function handleChangePrices(element) {
+            callOnChangePrices(element, sorting);
+        }
+    </script>
+    <script src="~/js/addToBag.js"></script>
+    <script>
+        var page = '@ViewData["CurrentPage"]';
+        var sorting = '@ViewData["CurrentSort"]';
+        var selectedProducts = '@Html.Raw(ViewData["CurrentSelectedProducts"])'
+        var selectedPrice = '@ViewData["CurrentSelectedPrice"]';
+        var selectedSizes = '@ViewData["CurrentSelectedSizes"]';
+
+        function handleAddToBagClick(productId) {
+            addProductToBag(productId, page, sorting, selectedProducts, selectedPrice, selectedSizes);
+        }
+    </script>
+}
