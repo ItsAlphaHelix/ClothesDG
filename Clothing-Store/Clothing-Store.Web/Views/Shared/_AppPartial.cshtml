@@ -67,12 +67,12 @@
                                                     }
 
                                                     <li class="@(selectedProducts.Contains("Пуловер") ? "active" : "")">
-                                                        <a href="#" data-value="Пуловер" class="filter-link" onclick="toggleCheckbox(event, 'Пуловер')">
+                                                        <a href="#" value="Пуловер" class="filter-link" onclick="toggleCheckbox(event, 'Пуловер')">
                                                             Пуловери
                                                         </a>
                                                     </li>
                                                     <li class="@(selectedProducts.Contains("Тениска") ? "active" : "")">
-                                                        <a href="#" data-value="Тениски" class="filter-link" onclick="toggleCheckbox(event, 'Тениска')">
+                                                        <a href="#" value="Тениски" class="filter-link" onclick="toggleCheckbox(event, 'Тениска')">
                                                             Тениски
                                                         </a>
                                                     </li>
@@ -132,7 +132,7 @@
                                                     {
                                                         <li class="@(selectedSizes.Contains(size.SizeName) ? "active" : "")">
                                                             <a href="#"
-                                                               data-value="@size.SizeName"
+                                                               value="@size.SizeName"
                                                                onclick="toggleCheckbox(event, '@Html.Raw(size.SizeName)', true)">
                                                                 @size.SizeName
                                                             </a>
