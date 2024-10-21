@@ -1,179 +1,95 @@
-﻿function callChangeOrder(sorting, searchBy) {
-
-    var selectedProducts = getSelectedProducts();
-    var selectedSizes = getSelectedSizes();
-    var selectedPrice = localStorage.getItem("selectedPrice");
-
-    var resultSelectedProducts = selectedProducts.length != 0 ? `&selectedProducts=${selectedProducts.join(',')}` : " ";
-    var resultSelectedPrice = selectedPrice != " " ? `&selectedPrice=${selectedPrice}` : " ";
-    var resultSelectedSizes = selectedSizes.length != 0 ? `&selectedSizes=${selectedSizes.join(',')}` : " ";
-    var resultSearchBy = selectedSizes.length != 0 ? `&selectedSizes=${selectedSizes.join(',')}` : " ";
-    var resultSearchBy = searchBy != " " && searchBy != undefined ? `&searchBy=${searchBy}` : " ";
-
-    var action = getCurrentAction();
-    var controller = getCurrentController(action);
-
-    window.location.href = `/${controller}/${action}?page=1&sorting=${sorting}${resultSelectedProducts}${resultSelectedPrice}${resultSelectedSizes}${resultSearchBy}`
+﻿function getSelectedFromURL(param) {
+    const params = new URLSearchParams(window.location.search);
+    const selectedParam = params.get(param);
+    return selectedParam ? selectedParam.split(',') : [];
 }
 
-function callOnChangeSizes(element, sorting, searchBy) {
-    var checkboxValue = element.getAttribute('value');
-    var selectedSizes = getSelectedSizes();
+// Initialize selected products and sizes from the URL
+let selectedProducts = getSelectedFromURL('selectedProducts');
+let selectedSizes = getSelectedFromURL('selectedSizes');
 
-    if (selectedSizes.includes(checkboxValue)) {
+// Function to toggle checkbox behavior for the link
+function toggleCheckbox(event, item, isSize = false) {
+    const link = event.target;
+    const params = new URLSearchParams(window.location.search); // Get current query params
+    const index = isSize ? selectedSizes.indexOf(item) : selectedProducts.indexOf(item);
 
-        selectedSizes = selectedSizes.filter(size => size !== checkboxValue);
-    } else {
-
-        selectedSizes.push(checkboxValue);
-    }
-
-    setSelectedSizes(selectedSizes);
-
-    var selectedProducts = getSelectedProducts();
-    var selectedSizes = getSelectedSizes();
-    var selectedPrice = localStorage.getItem("selectedPrice");
-
-    var resultSelectedProducts = selectedProducts.length != 0 ? `&selectedProducts=${selectedProducts.join(',')}` : " ";
-    var resultSelectedPrice = selectedPrice != " " ? `&selectedPrice=${selectedPrice}` : " ";
-    var resultSelectedSizes = selectedSizes.length != 0 ? `&selectedSizes=${selectedSizes.join(',')}` : " ";
-    var resultSearchBy = searchBy != " " && searchBy != undefined ? `&searchBy=${searchBy}` : " ";
-
-    var action = getCurrentAction();
-    var controller = getCurrentController(action);
-
-    window.location.href = `/${controller}/${action}?page=1&sorting=${sorting}${resultSelectedProducts}${resultSelectedPrice}${resultSelectedSizes}${resultSearchBy}`
-}
-
-function getSelectedSizes() {
-    var storedSizes = localStorage.getItem('selectedSizes');
-    return storedSizes ? storedSizes.split(',') : [];
-}
-
-function setSelectedSizes(selectedSizes) {
-    localStorage.setItem('selectedSizes', selectedSizes.join(','));
-}
-
-function callOnChangePrices(element, sorting, searchBy) {
-
-    if (localStorage.getItem("selectedPrice") != " ") {
-        localStorage.setItem('selectedPrice', " ");
-    }
-    else {
-
-        var checkboxValue = element.getAttribute('value');
-        localStorage.setItem("selectedPrice", checkboxValue)
-    }
-
-
-    var selectedProducts = getSelectedProducts();
-    var selectedSizes = getSelectedSizes();
-    var selectedPrice = localStorage.getItem("selectedPrice");
-
-    var resultSelectedProducts = selectedProducts.length != 0 ? `&selectedProducts=${selectedProducts.join(',')}` : " ";
-    var resultSelectedPrice = selectedPrice != " " ? `&selectedPrice=${selectedPrice}` : " ";
-    var resultSelectedSizes = selectedSizes.length != 0 ? `&selectedSizes=${selectedSizes.join(',')}` : " ";
-    var resultSearchBy = searchBy != " " && searchBy != undefined ? `&searchBy=${searchBy}` : " ";
-
-    var action = getCurrentAction();
-    var controller = getCurrentController(action);
-
-    window.location.href = `/${controller}/${action}?page=1&sorting=${sorting}${resultSelectedProducts}${resultSelectedPrice}${resultSelectedSizes}${resultSearchBy}`
-}
-
-function getSelectedProducts() {
-    var storedProducts = localStorage.getItem('selectedProducts');
-    return storedProducts ? storedProducts.split(',') : [];
-}
-
-function setSelectedProducts(selectedProducts) {
-    localStorage.setItem('selectedProducts', selectedProducts.join(','));
-}
-
-function callChangeProducts(element, sorting, searchBy) {
-
-    var checkboxValue = element.getAttribute('value');
-    var selectedProducts = getSelectedProducts();
-
-    if (selectedProducts.includes(checkboxValue)) {
-
-        selectedProducts = selectedProducts.filter(product => product !== checkboxValue);
-    } else {
-
-        selectedProducts.push(checkboxValue);
-    }
-
-    setSelectedProducts(selectedProducts);
-
-    var selectedSizes = getSelectedSizes();
-    var selectedPrice = localStorage.getItem("selectedPrice");
-
-    var resultSelectedProducts = selectedProducts.length != 0 ? `&selectedProducts=${selectedProducts.join(',')}` : " ";
-    var resultSelectedPrice = selectedPrice != " " ? `&selectedPrice=${selectedPrice}` : " ";
-    var resultSelectedSizes = selectedSizes.length != 0 ? `&selectedSizes=${selectedSizes.join(',')}` : " ";
-    var resultSearchBy = searchBy != " " && searchBy != undefined ? `&searchBy=${searchBy}` : " ";
-
-    var action = getCurrentAction();
-    var controller = getCurrentController(action);
-
-    window.location.href = `/${controller}/${action}?page=1&sorting=${sorting}${resultSelectedProducts}${resultSelectedPrice}${resultSelectedSizes}${resultSearchBy}`
-
-}
-
-
-document.addEventListener('DOMContentLoaded', function () {
-    var selectedProducts = getSelectedProducts();
-    selectedProducts.forEach(function (product) {
-        var anchorProduct = document.querySelector('a[value="' + product + '"]');
-        if (anchorProduct) {
-            anchorProduct.parentNode.classList.add('active');
+    if (index === -1) {
+        // If the item is not selected, add it to the list
+        if (isSize) {
+            selectedSizes.push(item);
+        } else {
+            selectedProducts.push(item);
         }
-    });
-
-    var selectedSizes = getSelectedSizes();
-
-    selectedSizes.forEach(function (size) {
-        var anchorSize = document.querySelector('a[value="' + size + '"]');
-        if (anchorSize) {
-            anchorSize.parentNode.classList.add('active');
+        link.classList.add('active');
+    } else {
+        // If the item is already selected, remove it
+        if (isSize) {
+            selectedSizes.splice(index, 1);
+        } else {
+            selectedProducts.splice(index, 1);
         }
-    });
+        link.classList.remove('active');
+    }
 
-    var price = localStorage.getItem("selectedPrice");
-    var anchorPrice = document.querySelector('a[value="' + price + '"]');
+    // Update selectedProducts and selectedSizes in the URL parameters
+    if (selectedProducts.length > 0) {
+        params.set('selectedProducts', selectedProducts.join(','));
+    } else {
+        params.delete('selectedProducts');
+    }
 
-    if (anchorPrice) {
-        anchorPrice.parentNode.classList.add('active');
+    if (selectedSizes.length > 0) {
+        params.set('selectedSizes', selectedSizes.join(','));
+    } else {
+        params.delete('selectedSizes');
     }
-});
 
-function getCurrentAction() {
-    var currentLocation = window.location.href;
-    var action = " ";
+    const queryString = params.toString();
 
-    if (currentLocation.includes("AllMenProducts")) {
-        action = "AllMenProducts";
+    // Redirect: If there's no query string, go to the base URL
+    if (queryString) {
+        window.location.href = decodeURIComponent(window.location.pathname + '?' + queryString);
+    } else {
+        window.location.href = window.location.pathname; // No query params, just the base URL
     }
-    else if (currentLocation.includes("AllWomenProducts")) {
-        action = "AllWomenProducts";
-    }
-    else if (currentLocation.includes("ProductsByQuery")) {
-        action = "ProductsByQuery";
-    }
-    else {
-        action = "All";
-    }
-    return action;
 }
 
-function getCurrentController(action) {
-    var controller = " ";
+let typingTimer;                // Timer identifier
+const typingDelay = 500;         // Delay in ms (500ms delay after user stops typing)
 
-    if (action === "ProductsByQuery") {
-        controller = "Search"
-    } else {
-        controller = "Products"
-    }
+// Function to handle price range update
+function updatePriceRange() {
+    const minPrice = document.getElementById("minPriceTag").textContent.split(' ')[0];
+    const maxPrice = document.getElementById("maxPriceTag").textContent.split(' ')[0];
 
-    return controller;
+    const params = new URLSearchParams(window.location.search); // Get current query params
+
+    // Update or add the price range parameters in the URL
+
+    params.set("minPrice", minPrice);
+    params.set("maxPrice", maxPrice);
+
+    // Redirect with the updated query string, preserving selectedProducts and selectedSizes if present
+    window.location.href = window.location.pathname + "?" + params.toString();
+}
+
+// Function to delay execution of the price range update
+function triggerUpdatePriceRange() {
+    clearTimeout(typingTimer); // Clear the previous timer
+    typingTimer = setTimeout(updatePriceRange, typingDelay); // Start a new timer
+}
+
+document.getElementById("minRange").addEventListener("input", triggerUpdatePriceRange);
+document.getElementById("maxRange").addEventListener("input", triggerUpdatePriceRange);
+
+
+function callChangeOrder(sorting) {
+    const params = new URLSearchParams(window.location.search); // Get current query params
+
+    // Set the new sorting parameter
+    params.set('sorting', sorting);
+
+    // Redirect with the updated query string
+    window.location.href = window.location.pathname + '?' + params.toString();
 }

@@ -24,7 +24,7 @@ function incrementQuantity() {
 }
 
 
-function addProductToBag(productId, page, sorting, selectedProducts, selectedPrice, selectedSizes, searchBy) {
+function addProductToBag(productId, page, sorting, selectedProducts, minPrice, maxPrice, selectedSizes, searchBy) {
 
     var activeSizeElement = $('.mg-size-variant-outer ul li.active')[0];
     var sizeName = " ";
@@ -60,13 +60,13 @@ function addProductToBag(productId, page, sorting, selectedProducts, selectedPri
             var action = getCurrentAction();
             var controller = getCurrentController(action);
 
-            var resultSelectedProducts = selectedProducts !== '' ? `&selectedProducts=${selectedProducts}` : ' ';
-            var resultSelectedPrice = selectedPrice !== '' ? `&selectedPrice=${selectedPrice}` : ' ';
-            var resultSelectedSizes = selectedSizes !== '' ? `&selectedSizes=${selectedSizes}` : ' ';
+            var resultSelectedProducts = selectedProducts.length !== 0 ? `&selectedProducts=${selectedProducts}` : ' ';
+            var resultMinPrice = minPrice !== '' ? `&minPrice=${minPrice}` : ' ';
+            var resultMaxPrice = maxPrice !== '' ? `&maxPrice=${maxPrice}` : ' ';
+            var resultSelectedSizes = selectedSizes.length !== 0 ? `&selectedSizes=${selectedSizes}` : ' ';
             var resultSearchBy = searchBy !== ' ' && searchBy != undefined ? `&searchBy=${searchBy}` : ' ';
 
-            window.location.href = `/${controller}/${action}?page=${page}&sorting=${sorting}${resultSelectedProducts}${resultSelectedPrice}${resultSelectedSizes}${resultSearchBy}`;
-
+            window.location.href = `/${controller}/${action}?page=${page}&sorting=${sorting}${resultSelectedProducts}${resultMinPrice}${resultMaxPrice}${resultSelectedSizes}${resultSearchBy}`;
         },
         error: function (xhr, status, error) {
             console.log(xhr.responseText)

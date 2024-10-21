@@ -11,108 +11,16 @@
 
 @section Scripts {
     <script src="~/js/loadModalProductDetails.js" asp-append-version="true"></script>
-    <script src="~/js/filterProducts.js" asp-append-version="true"></script>
+    <script src="~/js/filterProducts.js" asp-append-version="true"></script> 
+    <script src="~/js/addToBag.js" asp-append-version="true"></script>
     <script>
-
-
-        function getSelectedFromURL(param) {
-            const params = new URLSearchParams(window.location.search);
-            const selectedParam = params.get(param);
-            return selectedParam ? selectedParam.split(',') : [];
-        }
-
-        // Initialize selected products and sizes from the URL
-        let selectedProducts = getSelectedFromURL('selectedProducts');
-        let selectedSizes = getSelectedFromURL('selectedSizes');
-
-        // Function to toggle checkbox behavior for the link
-        function toggleCheckbox(event, item, isSize = false) {
-
-            const link = event.target;
-            const index = isSize ? selectedSizes.indexOf(item) : selectedProducts.indexOf(item);
-
-            if (index === -1) {
-                // If the item is not selected, add it to the list
-                if (isSize) {
-                    selectedSizes.push(item);
-                } else {
-                    selectedProducts.push(item);
-                }
-                link.classList.add('active');
-            } else {
-                // If the item is already selected, remove it
-                if (isSize) {
-                    selectedSizes.splice(index, 1);
-                } else {
-                    selectedProducts.splice(index, 1);
-                }
-                link.classList.remove('active');
-            }
-
-            // Construct the query string if there are selected products or sizes
-            let queryString = '';
-            if (selectedProducts.length > 0) {
-                queryString += '?selectedProducts=' + selectedProducts.join(',');
-            }
-            if (selectedSizes.length > 0) {
-                queryString += (queryString ? '&' : '?') + 'selectedSizes=' + selectedSizes.join(',');
-            }
-
-            // Redirect with the updated query string or to the base URL
-            window.location.href = queryString || window.location.pathname; // Redirect with the updated query string or base URL
-        }
-
-
-        let typingTimer;                // Timer identifier
-        const typingDelay = 500;         // Delay in ms (500ms delay after user stops typing)
-
-        // Function to handle price range update
-        function updatePriceRange() {
-            const minPrice = document.getElementById("minPriceTag").textContent.split(' ')[0];
-            const maxPrice = document.getElementById("maxPriceTag").textContent.split(' ')[0];
-
-            let queryString = window.location.search;
-            const params = new URLSearchParams(queryString);
-
-            // Update or add the price range parameters in the URL
-            params.set("minPrice", minPrice);
-            params.set("maxPrice", maxPrice);
-
-            // Redirect with updated query string
-            window.location.href = window.location.pathname + "?" + params.toString();
-        }
-
-        // Function to delay execution of the price range update
-        function triggerUpdatePriceRange() {
-            clearTimeout(typingTimer); // Clear the previous timer
-            typingTimer = setTimeout(updatePriceRange, typingDelay); // Start a new timer
-        }
-
-        document.getElementById("minRange").addEventListener("input", triggerUpdatePriceRange);
-        document.getElementById("maxRange").addEventListener("input", triggerUpdatePriceRange);
-
-
-
-        function handleChangeSizes(element) {
-            callOnChangeSizes(element, sorting);
-        }
-        function handleChangeProducts(element) {
-            callChangeProducts(element, sorting)
-        }
-        function handleChangePrices(element) {
-            callOnChangePrices(element, sorting);
-        }
-    </script>
-     <script src="~/js/addToBag.js" asp-append-version="true"></script>
-    <script>
-        var page = '@ViewData["CurrentPage"]';
-        var sorting = '@ViewData["CurrentSort"]';
-        var selectedProducts = '@Html.Raw(ViewData["CurrentSelectedProducts"])'
-        var selectedPrice = '@ViewData["CurrentSelectedPrice"]';
-        var selectedSizes = '@ViewData["CurrentSelectedSizes"]';
-
         function handleAddToBagClick(productId) {
-            addProductToBag(productId, page, sorting, selectedProducts, selectedPrice, selectedSizes);
+            const page = '@ViewData["CurrentPage"]';
+            const sorting = '@ViewData["CurrentSort"]';
+            const minPrice = '@Model.MinPrice';
+            const maxPrice = '@Model.MaxPrice';
+
+            addProductToBag(productId, page, sorting, selectedProducts, minPrice, maxPrice, selectedSizes);
         }
     </script>
 }

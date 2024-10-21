@@ -10,6 +10,7 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
+    using OpenQA.Selenium.DevTools.V121.Page;
     using System.Linq;
     using System.Security.Claims;
 
@@ -44,7 +45,7 @@
             {
                 Models = paginated,
                 MinPrice = model.MinPrice ?? 0,
-                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price)) 
+                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
             };
 
             try
@@ -64,6 +65,7 @@
             return View(viewModel);
         }
 
+
         [HttpGet]
         public async Task<IActionResult> AllMenProducts([FromQuery] PaginatedViewModel<ProductViewModel> model, int page = 1)
         {
@@ -80,7 +82,9 @@
 
             var viewModel = new PaginatedViewModel<ProductViewModel>()
             {
-                Models = paginated
+                Models = paginated,
+                MinPrice = model.MinPrice ?? 0,
+                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
             };
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -108,6 +112,8 @@
             var viewModel = new PaginatedViewModel<ProductViewModel>()
             {
                 Models = paginated,
+                MinPrice = model.MinPrice ?? 0,
+                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
             };
 
             return View(viewModel);
