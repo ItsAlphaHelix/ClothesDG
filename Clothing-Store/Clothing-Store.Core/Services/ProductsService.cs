@@ -31,11 +31,15 @@
             this.usersManager = usersManager;
         }
 
-        public IQueryable<ProductViewModel> GetAllProductsByGenderAsQueryable(PaginatedViewModel<ProductViewModel> model, bool isMale)
+        public IQueryable<ProductViewModel> GetAllProductsByGenderAsQueryable(
+            PaginatedViewModel<ProductViewModel> model,
+            bool isMale,
+            string productName)
         {
             var products = this.productsRepository
                 .AllAsNoTracking()
-                .Where(x => x.IsMale == isMale)
+                .Where(x => x.IsMale == isMale &&
+                (string.IsNullOrWhiteSpace(productName) || x.Category == productName))
                 .Select(x => new ProductViewModel()
                 {
                     Id = x.Id,
@@ -237,6 +241,17 @@
                 .ToListAsync();
 
             return recommendedProducts;
+        }
+
+        public async Task<List<string>> GetProductNamesAsync()
+        {
+            var productNames = await this.productsRepository
+                .AllAsNoTracking()
+                .Select(x => x.Category)
+                .Distinct()
+                .ToListAsync();
+
+            return productNames;
         }
     }
 }

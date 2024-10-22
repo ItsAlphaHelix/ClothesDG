@@ -6,6 +6,7 @@
 @inject IBagsService bagsService
 @inject IOrdersService ordersService;
 @inject ICustomersService customerService;
+@inject IProductsService productsService;
 
 @{
     string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -16,6 +17,8 @@
     bool isCustomerHasOrders = await this.customerService.IsCustomerHasOrdersAsync(userId);
     int countOfFavoriteProducts = await this.favoritesService.CountOfFavoriteProductsAsync(userId);
     int countOfProductsInBag = await this.bagsService.CountOfProductsInBagAsync(userId);
+
+    var productNames = await this.productsService.GetProductNamesAsync();
 }
 
 <div class="mg-header-outer">
@@ -45,6 +48,60 @@
                                     </div>
                                 </div>
                             </li>
+                            <li class="menu-item-has-children">
+                                <a asp-area="" asp-controller="Products" asp-action="AllMenProducts">Мъжка Колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                <div class="mg-sub-menu-outer">
+                                    <div class="menu-subs">
+                                        <div class="container">
+                                            <div class="row">
+                                                @for (int i = 0; i < productNames.Count(); i += 4)
+                                                {
+                                                    <div class="col-md-3">
+                                                        <ul class="list-unstyled">
+                                                            @for (int j = i; j < i + 4 && j < productNames.Count(); j++)
+                                                            {
+                                                                <li>
+                                                                    <a asp-area="" asp-controller="Products" asp-action="AllMenProducts" asp-route-productName="@productNames[j]">
+                                                                        @productNames[j]
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li class="menu-item-has-children">
+                                <a asp-area="" asp-controller="Products" asp-action="AllWomenProducts">Женска Колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                <div class="mg-sub-menu-outer">
+                                    <div class="menu-subs">
+                                        <div class="container">
+                                            <div class="row">
+                                                @for (int i = 0; i < productNames.Count; i += 4)
+                                                {
+                                                    <div class="col-md-3">
+                                                        <ul class="list-unstyled">
+                                                            @for (int j = i; j < i + 4 && j < productNames.Count; j++)
+                                                            {
+                                                                <li>
+                                                                    <a asp-area="" asp-controller="Products" asp-action="AllWomenProducts" asp-route-productName="@productNames[j]">
+                                                                        @productNames[j]
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
                             @if(isCustomerHasOrders)
                             {
                                 <li class="menu-item">

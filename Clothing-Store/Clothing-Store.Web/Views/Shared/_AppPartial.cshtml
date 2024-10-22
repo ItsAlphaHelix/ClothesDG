@@ -10,6 +10,7 @@
     var sizes = await this.productsService.GetAllSizesAsync();
     string url = Context.Request.Path;
     string navigation = string.Empty;
+    bool isSearch = false;
     if (url.Contains("AllMenProducts"))
     {
         navigation = "Всички мъжки продукти";
@@ -17,6 +18,11 @@
     else if (url.Contains("AllWomenProducts"))
     {
         navigation = "Всички женски продукти";
+    }
+    else if (url.Contains("ProductsByQuery"))
+    {
+        navigation = "Намерени продукти";
+        isSearch = true;
     }
     else
     {
@@ -48,69 +54,7 @@
                         <div class="accordion accordion-flush" id="mg-privacy-policy">
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tab1">
-                                        Продукти
-                                    </button>
-                                </h2>
-                                <div id="tab1" class="accordion-collapse collapse show">
-                                    <div class="accordion-body">
-                                        <div class="mg-filter-panel">
-                                            <div class="mg-filter-checkbox">
-                                                <ul>
-
-                                                    @{
-                                                        var currentSelectedProducts = ViewData["CurrentSelectedProducts"]?.ToString();
-
-                                                        var selectedProducts = string.IsNullOrEmpty(currentSelectedProducts)
-                                                        ? new List<string>()
-                                                        : currentSelectedProducts.Split(",").ToList();
-                                                    }
-
-                                                    <li class="@(selectedProducts.Contains("Пуловер") ? "active" : "")">
-                                                        <a value="Пуловер" class="filter-link" onclick="toggleCheckbox(event, 'Пуловер')">
-                                                            Пуловери
-                                                        </a>
-                                                    </li>
-                                                    <li class="@(selectedProducts.Contains("Тениска") ? "active" : "")">
-                                                        <a value="Тениски" class="filter-link" onclick="toggleCheckbox(event, 'Тениска')">
-                                                            Тениски
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                                @* <ul>
-                                                <li><a href="#" name="selectedProducts" value="Пуловер" class="filter-link" onclick="handleChangeProducts(this)">Пуловери</a></li>
-                                                <li><a href="#" name="selectedProducts" value="Тениска" class="filter-link" onclick="handleChangeProducts(this)">Тениски</a></li>
-                                                </ul> *@
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @* <div class="accordion-item">
-                            <h2 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tab3">
-                            Цени
-                            </button>
-                            </h2>
-                            <div id="tab3" class="accordion-collapse collapse show">
-                            <div class="accordion-body">
-                            <div class="mg-filter-panel">
-                            <div class="mg-filter-checkbox">
-                            <ul>
-                            <li><a href="#" name="selectedPrice" value="5-15" onclick="handleChangePrices(this)">5 ЛВ - 15 ЛВ</a></li>
-                            <li><a href="#" name="selectedPrice" value="15-30" onclick="handleChangePrices(this)">15 ЛВ - 30 ЛВ</a></li>
-                            <li><a href="#" name="selectedPrice" value="30-50" onclick="handleChangePrices(this)">30 ЛВ - 50 ЛВ</a></li>
-                            <li><a href="#" name="selectedPrice" value="50-100" onclick="handleChangePrices(this)">50 ЛВ - 100 ЛВ</a></li>
-                            </ul>
-                            </div>
-                            </div>
-                            <br />
-                            </div>
-                            </div>
-                            </div> *@
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tab3">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tab5">
                                         Размери
                                     </button>
                                 </h2>
@@ -131,9 +75,8 @@
                                                     @foreach (var size in sizes)
                                                     {
                                                         <li class="@(selectedSizes.Contains(size.SizeName) ? "active" : "")">
-                                                            <a
-                                                               value="@size.SizeName"
-                                                               onclick="toggleCheckbox(event, '@Html.Raw(size.SizeName)', true)">
+                                                            <a value="@size.SizeName"
+                                                               onclick="toggleCheckbox(event, '@Html.Raw(size.SizeName)')">
                                                                 @size.SizeName
                                                             </a>
                                                         </li>
@@ -256,6 +199,7 @@
                                                asp-route-selectedProducts="@ViewData["CurrentSelectedProducts"]"
                                                asp-route-minPrice="@Model.MinPrice"
                                                asp-route-maxPrice="@Model.MaxPrice"
+                                               asp-route-selectedSizes="@ViewData["CurrentSelectedSizes"]"
                                                asp-route-searchBy="@ViewData["CurrentSearchWord"]">
                                                 <img src="~/images/pngs/mg-arrow-right.png" alt="" />
                                             </a>

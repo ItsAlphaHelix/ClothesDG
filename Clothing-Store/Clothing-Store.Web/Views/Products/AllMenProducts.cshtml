@@ -11,18 +11,17 @@
 @await Html.PartialAsync("_AppPartial")
 
 @section Scripts {
-    <script src="~/js/loadModalProductDetails.js"></script>
+    <script src="~/js/loadModalProductDetails.js" asp-append-version="true"></script>
     <script src="~/js/filterProducts.js" asp-append-version="true"></script>
-    <script src="~/js/addToBag.js"></script>
-    @* <script>
-        var page = '@ViewData["CurrentPage"]';
-        var sorting = '@ViewData["CurrentSort"]';
-        var selectedProducts = '@Html.Raw(ViewData["CurrentSelectedProducts"])'
-        var selectedPrice = '@ViewData["CurrentSelectedPrice"]';
-        var selectedSizes = '@ViewData["CurrentSelectedSizes"]';
-
+    <script src="~/js/addToBag.js" asp-append-version="true"></script>
+    <script>
         function handleAddToBagClick(productId) {
-            addProductToBag(productId, page, sorting, selectedProducts, selectedPrice, selectedSizes);
+            const page = '@ViewData["CurrentPage"]';
+            const sorting = '@ViewData["CurrentSort"]';
+            const minPrice = '@Model.MinPrice';
+            const maxPrice = '@Model.MaxPrice';
+
+            addProductToBag(productId, page, sorting, selectedProducts, minPrice, maxPrice, selectedSizes);
         }
-    </script> *@
+    </script>
 }

@@ -38,7 +38,9 @@ namespace Clothing_Store.Controllers
 
             var viewModel = new PaginatedViewModel<ProductViewModel>
             {
-                Models = paginated
+                Models = paginated,
+                MinPrice = model.MinPrice ?? 0,
+                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
             };
 
             return View(viewModel);

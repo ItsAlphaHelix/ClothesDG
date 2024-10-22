@@ -30,12 +30,14 @@
         /// Getting all products by gender.
         /// </summary>
         /// <returns></returns>
-        IQueryable<ProductViewModel> GetAllProductsByGenderAsQueryable(PaginatedViewModel<ProductViewModel> model, bool isMale);
+        IQueryable<ProductViewModel> GetAllProductsByGenderAsQueryable(PaginatedViewModel<ProductViewModel> model, bool isMale, string productName);
 
         Task<IEnumerable<SizeViewModel>> GetAllSizesAsync();
 
         Task PostProductReviewAsync(PostProductReviewViewModel productReview, string userId);
 
         Task<IEnumerable<ProductViewModel>> GetRecommendedProductsAsync(int productId);
+
+        Task<List<string>> GetProductNamesAsync();
     }
 }

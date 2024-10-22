@@ -4,40 +4,26 @@
     return selectedParam ? selectedParam.split(',') : [];
 }
 
-// Initialize selected products and sizes from the URL
-let selectedProducts = getSelectedFromURL('selectedProducts');
+// Initialize selected sizes from the URL
 let selectedSizes = getSelectedFromURL('selectedSizes');
 
 // Function to toggle checkbox behavior for the link
-function toggleCheckbox(event, item, isSize = false) {
+function toggleCheckbox(event, item) {
     const link = event.target;
     const params = new URLSearchParams(window.location.search); // Get current query params
-    const index = isSize ? selectedSizes.indexOf(item) : selectedProducts.indexOf(item);
+    const index = selectedSizes.indexOf(item);
 
     if (index === -1) {
         // If the item is not selected, add it to the list
-        if (isSize) {
-            selectedSizes.push(item);
-        } else {
-            selectedProducts.push(item);
-        }
-        link.classList.add('active');
+         selectedSizes.push(item);
+         link.classList.add('active');
     } else {
         // If the item is already selected, remove it
-        if (isSize) {
-            selectedSizes.splice(index, 1);
-        } else {
-            selectedProducts.splice(index, 1);
-        }
+        selectedSizes.splice(index, 1);
         link.classList.remove('active');
     }
 
-    // Update selectedProducts and selectedSizes in the URL parameters
-    if (selectedProducts.length > 0) {
-        params.set('selectedProducts', selectedProducts.join(','));
-    } else {
-        params.delete('selectedProducts');
-    }
+     //Update selectedSizes in the URL parameters
 
     if (selectedSizes.length > 0) {
         params.set('selectedSizes', selectedSizes.join(','));

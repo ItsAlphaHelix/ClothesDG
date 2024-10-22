@@ -5,14 +5,10 @@
     using Clothing_Store.Core.ViewModels.Reviews;
     using Clothing_Store.Core.ViewModels.Shared;
     using Clothing_Store.Data.Data.Models;
-    using Clothing_Store.Data.Repositories;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
-    using OpenQA.Selenium.DevTools.V121.Page;
     using System.Linq;
-    using System.Security.Claims;
 
     public class ProductsController : ControllerBase
     {
@@ -64,19 +60,16 @@
 
             return View(viewModel);
         }
-
-
-        [HttpGet]
-        public async Task<IActionResult> AllMenProducts([FromQuery] PaginatedViewModel<ProductViewModel> model, int page = 1)
+        public async Task<IActionResult> AllMenProducts([FromQuery] PaginatedViewModel<ProductViewModel> model, string productName, int page = 1)
         {
             ViewData["IsHomePage"] = false;
             ViewData["CurrentPage"] = page;
             ViewData["CurrentSort"] = model.Sorting;
-            ViewData["CurrentSelectedProducts"] = model.SelectedProducts;
+            ViewData["CurrentSelectedProducts"] = productName;
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
-            var products = this.productsService.GetAllProductsByGenderAsQueryable(model, true);
+            var products = this.productsService.GetAllProductsByGenderAsQueryable(model, true, productName);
 
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
@@ -96,16 +89,16 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> AllWomenProducts([FromQuery] PaginatedViewModel<ProductViewModel> model, int page = 1)
+        public async Task<IActionResult> AllWomenProducts([FromQuery] PaginatedViewModel<ProductViewModel> model, string productName, int page = 1)
         {
             ViewData["IsHomePage"] = false;
             ViewData["CurrentPage"] = page;
             ViewData["CurrentSort"] = model.Sorting;
-            ViewData["CurrentSelectedProducts"] = model.SelectedProducts;
+            ViewData["CurrentSelectedProducts"] = productName;
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
-            var products = this.productsService.GetAllProductsByGenderAsQueryable(model, false);
+            var products = this.productsService.GetAllProductsByGenderAsQueryable(model, false, productName);
 
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
