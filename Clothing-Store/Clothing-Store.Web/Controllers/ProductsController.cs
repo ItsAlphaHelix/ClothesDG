@@ -9,7 +9,7 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using System.Linq;
-
+    using System.Text;
     public class ProductsController : ControllerBase
     {
         private readonly IProductsService productsService;
@@ -23,7 +23,6 @@
             this.usersManager = usersManager;
         }
 
-        [HttpGet]
         public async Task<IActionResult> All([FromQuery] PaginatedViewModel<ProductViewModel> model, int page = 1)
         {
             ViewData["IsHomePage"] = false;
@@ -35,13 +34,15 @@
 
             var products = this.productsService.GetAllProductsAsQueryable(model);
 
+            products = this.productsService.FilterProductsAsQueryable(model, products);
+
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
             var viewModel = new PaginatedViewModel<ProductViewModel>()
             {
                 Models = paginated,
                 MinPrice = model.MinPrice ?? 0,
-                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
+                MaxPrice = model.MaxPrice ?? 100
             };
 
             try
@@ -60,6 +61,7 @@
 
             return View(viewModel);
         }
+
         public async Task<IActionResult> AllMenProducts([FromQuery] PaginatedViewModel<ProductViewModel> model, string productName, int page = 1)
         {
             ViewData["IsHomePage"] = false;
@@ -71,24 +73,21 @@
 
             var products = this.productsService.GetAllProductsByGenderAsQueryable(model, true, productName);
 
+            products = this.productsService.FilterProductsAsQueryable(model, products);
+
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
             var viewModel = new PaginatedViewModel<ProductViewModel>()
             {
                 Models = paginated,
                 MinPrice = model.MinPrice ?? 0,
-                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
+                MaxPrice = model.MaxPrice ?? 100
+                //Math.Round(products.Max(x => x.Price))
             };
-
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_ProductsPartial", viewModel); // Return only the product list partial view
-            }
 
             return View(viewModel);
         }
 
-        [HttpGet]
         public async Task<IActionResult> AllWomenProducts([FromQuery] PaginatedViewModel<ProductViewModel> model, string productName, int page = 1)
         {
             ViewData["IsHomePage"] = false;
@@ -100,13 +99,16 @@
 
             var products = this.productsService.GetAllProductsByGenderAsQueryable(model, false, productName);
 
+            products = this.productsService.FilterProductsAsQueryable(model, products);
+
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
             var viewModel = new PaginatedViewModel<ProductViewModel>()
             {
                 Models = paginated,
                 MinPrice = model.MinPrice ?? 0,
-                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
+                MaxPrice = model.MaxPrice ?? 100
+                //Math.Round(products.Max(x => x.Price), MidpointRounding.AwayFromZero)
             };
 
             return View(viewModel);
@@ -119,8 +121,6 @@
 
             return PartialView("_ProductModalPartial", product);
         }
-
-        [HttpGet]
         public async Task<IActionResult> ProductDetails(int id, int pageNumber, int pageSize = 3)
         {
             ViewData["IsHomePage"] = false;
@@ -174,6 +174,38 @@
             var result = new { IsLoggedIn = isLoggedIn };
 
             return Ok(result);
+        }
+
+        public async Task<IActionResult> Search(
+            [FromQuery] PaginatedViewModel<ProductViewModel> model,
+            string searchBy,
+            int page = 1)
+        {
+            ViewData["IsHomePage"] = false;
+            ViewData["CurrentSearchWord"] = searchBy;
+            ViewData["CurrentPage"] = page;
+            ViewData["CurrentSort"] = model.Sorting;
+            ViewData["CurrentSelectedProducts"] = model.SelectedProducts;
+            ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
+            ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
+
+            var products = this.productsService.SearchProductsByQueryAsQueryable(model, searchBy);
+
+            if (products == null && !products.Any())
+            {
+                return NotFound();
+            }
+            products = this.productsService.FilterProductsAsQueryable(model, products);
+            var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
+
+            var viewModel = new PaginatedViewModel<ProductViewModel>
+            {
+                Models = paginated,
+                MinPrice = model.MinPrice ?? 0,
+                MaxPrice = model.MaxPrice ?? Math.Round(products.Max(x => x.Price))
+            };
+
+            return View(viewModel);
         }
     }
 }

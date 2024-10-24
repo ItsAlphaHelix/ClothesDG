@@ -12,22 +12,20 @@ namespace Clothing_Store.Controllers
         {
             this.searchService = searchService;
         }
-
-        [HttpGet]
-        public async Task<IActionResult> ProductsByQuery(
+        public async Task<IActionResult> Search(
             [FromQuery]PaginatedViewModel<ProductViewModel> model,
-            string searchBy,
+            string searchTerm,
             int page = 1)
         {
             ViewData["IsHomePage"] = false;
-            ViewData["CurrentSearchWord"] = searchBy;
+            ViewData["CurrentSearchWord"] = searchTerm;
             ViewData["CurrentPage"] = page;
             ViewData["CurrentSort"] = model.Sorting;
             ViewData["CurrentSelectedProducts"] = model.SelectedProducts;
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
-            var products = this.searchService.SearchProductsByQueryAsQueryable(model, searchBy);
+            var products = this.searchService.SearchProductsByQueryAsQueryable(model, searchTerm);
 
             if (products == null && !products.Any())
             {

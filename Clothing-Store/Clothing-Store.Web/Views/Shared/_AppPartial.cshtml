@@ -10,7 +10,7 @@
     var sizes = await this.productsService.GetAllSizesAsync();
     string url = Context.Request.Path;
     string navigation = string.Empty;
-    bool isSearch = false;
+    bool isMan = true;
     if (url.Contains("AllMenProducts"))
     {
         navigation = "Всички мъжки продукти";
@@ -18,11 +18,11 @@
     else if (url.Contains("AllWomenProducts"))
     {
         navigation = "Всички женски продукти";
+        isMan = false;
     }
     else if (url.Contains("ProductsByQuery"))
     {
         navigation = "Намерени продукти";
-        isSearch = true;
     }
     else
     {
@@ -106,8 +106,8 @@
                                                         <span class="price-tag" id="maxPriceTag"></span>
                                                     </div>
                                                     <div class="range-input">
-                                                        <input id="minRange" type="range" class="range-min" min="0" max="35" value="@Model.MinPrice" step="1">
-                                                        <input id="maxRange" type="range" class="range-max" min="0" max="35" value="@Model.MaxPrice" step="1">
+                                                        <input id="minRange" type="range" class="range-min" min="0" max="100" value="@Model.MinPrice" step="1">
+                                                        <input id="maxRange" type="range" class="range-max" min="0" max="100" value="@Model.MaxPrice" step="1">
                                                     </div>
                                                 </div>
                                             </div>
@@ -158,10 +158,10 @@
                                         <li class="page-item pagination-nextprev @(Model.Models.HasPreviousPage ? "" : "disabled")">
                                             <a class="page-link" aria-label="Previous"
                                                asp-route-page="@(Model.Models.PageNumber - 1)"
-                                               asp-route-sorting="@ViewData["CurrentSort"]"
-                                               asp-route-selectedProducts="@ViewData["CurrentSelectedProducts"]"
-                                               asp-route-minPrice="@Model.MinPrice"
-                                               asp-route-maxPrice="@Model.MaxPrice"
+                                               asp-route-sorting="@(ViewData["CurrentSort"].ToString() != "Default" ? ViewData["CurrentSort"] : "")"
+                                               asp-route-productName="@ViewData["CurrentSelectedProducts"]"
+                                               asp-route-minPrice="@(Model.MinPrice == 0 && Model.MaxPrice == 100 ? "" : Model.MinPrice)"
+                                               asp-route-maxPrice="@(Model.MaxPrice == 100 && Model.MinPrice == 0 ? "" : Model.MaxPrice)"
                                                asp-route-selectedSizes="@ViewData["CurrentSelectedSizes"]"
                                                asp-route-searchBy="@ViewData["CurrentSearchWord"]">
                                                 <img src="~/images/pngs/mg-arrow-left.png" alt="" />
@@ -183,22 +183,22 @@
                                             <li class="page-item">
                                                 <a class="page-link @(Model.Models.PageNumber == i ? "active" : "")"
                                                    asp-route-page="@i"
-                                                   asp-route-sorting="@ViewData["CurrentSort"]"
-                                                   asp-route-selectedProducts="@ViewData["CurrentSelectedProducts"]"
-                                                   asp-route-minPrice="@Model.MinPrice"
-                                                   asp-route-maxPrice="@Model.MaxPrice"
+                                                   asp-route-sorting="@(ViewData["CurrentSort"].ToString() != "Default" ? ViewData["CurrentSort"] : "")"
+                                                   asp-route-productName="@ViewData["CurrentSelectedProducts"]"
+                                                   asp-route-minPrice="@(Model.MinPrice == 0 && Model.MaxPrice == 100 ? "" : Model.MinPrice)"
+                                                   asp-route-maxPrice="@(Model.MaxPrice == 100 && Model.MinPrice == 0 ? "" : Model.MaxPrice)"
                                                    asp-route-selectedSizes="@ViewData["CurrentSelectedSizes"]"
                                                    asp-route-searchBy="@ViewData["CurrentSearchWord"]">@i</a>
                                             </li>
                                         }
 
                                         <li class="page-item pagination-nextprev @(Model.Models.HasNextPage ? "" : "disabled")">
-                                            <a class="page-link" aria-label="Next"
+                                            <a class="page-link" aria-label="Next"                                       
                                                asp-route-page="@(Model.Models.PageNumber + 1)"
-                                               asp-route-sorting="@ViewData["CurrentSort"]"
-                                               asp-route-selectedProducts="@ViewData["CurrentSelectedProducts"]"
-                                               asp-route-minPrice="@Model.MinPrice"
-                                               asp-route-maxPrice="@Model.MaxPrice"
+                                               asp-route-sorting="@(ViewData["CurrentSort"].ToString() != "Default" ? ViewData["CurrentSort"] : "")"
+                                               asp-route-productName="@ViewData["CurrentSelectedProducts"]"
+                                                asp-route-minPrice="@(Model.MinPrice == 0 && Model.MaxPrice == 100 ? "" : Model.MinPrice)"
+                                               asp-route-maxPrice="@(Model.MaxPrice == 100 && Model.MinPrice == 0 ? "" : Model.MaxPrice)"
                                                asp-route-selectedSizes="@ViewData["CurrentSelectedSizes"]"
                                                asp-route-searchBy="@ViewData["CurrentSearchWord"]">
                                                 <img src="~/images/pngs/mg-arrow-right.png" alt="" />

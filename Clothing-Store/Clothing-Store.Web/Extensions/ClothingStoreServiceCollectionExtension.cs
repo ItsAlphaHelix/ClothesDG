@@ -12,7 +12,6 @@
         {
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IProductsService, ProductsService>();
-            services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<IFavoritesService, FavoritesService>();
             services.AddScoped<IBagsService, BagsService>();
             services.AddScoped<IOrdersService, OrdersService>();

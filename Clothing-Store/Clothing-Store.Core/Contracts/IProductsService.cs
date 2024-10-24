@@ -39,5 +39,10 @@
         Task<IEnumerable<ProductViewModel>> GetRecommendedProductsAsync(int productId);
 
         Task<List<string>> GetProductNamesAsync();
+
+        IQueryable<ProductViewModel> FilterProductsAsQueryable(PaginatedViewModel<ProductViewModel> model,
+            IQueryable<ProductViewModel> products);
+
+        IQueryable<ProductViewModel> SearchProductsByQueryAsQueryable(PaginatedViewModel<ProductViewModel> model, string searchBy);
     }
 }

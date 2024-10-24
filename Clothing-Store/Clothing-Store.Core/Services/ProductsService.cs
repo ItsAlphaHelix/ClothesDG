@@ -1,7 +1,6 @@
 ﻿namespace Clothing_Store.Core.Services
 {
     using Clothing_Store.Core.Contracts;
-    using Clothing_Store.Core.Services.HelperServices;
     using Clothing_Store.Core.ViewModels.Products;
     using Clothing_Store.Core.ViewModels.Reviews;
     using Clothing_Store.Core.ViewModels.Shared;
@@ -13,7 +12,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class ProductsService : FilterHelperService, IProductsService
+    public class ProductsService : IProductsService
     {
         private readonly IRepository<Product> productsRepository;
         private readonly IRepository<ProductReviews> productReviewsRepository;
@@ -30,7 +29,6 @@
             this.sizesRepository = sizesRepository;
             this.usersManager = usersManager;
         }
-
         public IQueryable<ProductViewModel> GetAllProductsByGenderAsQueryable(
             PaginatedViewModel<ProductViewModel> model,
             bool isMale,
@@ -54,8 +52,6 @@
                 })
                 .AsQueryable();
 
-            products = FilterProducts(model, products);
-
             return products;
         }
 
@@ -76,8 +72,6 @@
                     .ToList()
                 })
                 .AsQueryable();
-
-            products = FilterProducts(model, products);
 
             return products;
         }
@@ -252,6 +246,73 @@
                 .ToListAsync();
 
             return productNames;
+        }
+
+        public IQueryable<ProductViewModel> FilterProductsAsQueryable(PaginatedViewModel<ProductViewModel> model, IQueryable<ProductViewModel> products)
+        {
+            if (!string.IsNullOrWhiteSpace(model.SelectedProducts))
+            {
+                products = products.Where(x => model.SelectedProducts.Contains(x.Category));
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(model.SelectedSizes))
+            {
+                string[] splitSelectedSizes = model.SelectedSizes.Split(",");
+                products = products.Where(x => x.ProductSizes.Any(x => splitSelectedSizes.Contains(x)));
+            }
+
+
+            if (model.MinPrice.HasValue)
+            {
+                products = products.Where(p => Math.Round(p.Price) >= model.MinPrice.Value);
+            }
+
+            if (model.MaxPrice.HasValue)
+            {
+                products = products.Where(p => Math.Round(p.Price) <= model.MaxPrice.Value);
+            }
+
+            switch (model.Sorting)
+            {
+                case SortEnum.Default: products = products.AsQueryable(); break;
+                case SortEnum.AverageRating: products = products.OrderByDescending(x => x.AverageRating); break;
+                case SortEnum.PriceAsc: products = products.OrderBy(x => x.Price); break;
+                case SortEnum.PriceDesc: products = products.OrderByDescending(x => x.Price); break;
+            }
+
+            return products;
+        }
+
+        public IQueryable<ProductViewModel> SearchProductsByQueryAsQueryable(PaginatedViewModel<ProductViewModel> model, string searchBy)
+        {
+            if (!string.IsNullOrWhiteSpace(searchBy))
+            {
+                var baseForm = searchBy.ToLower().Substring(0, Math.Min(4, searchBy.Length));
+
+                var searchTerm = $"%{baseForm}%";
+
+                var searchProducts = this.productsRepository
+                    .AllAsNoTracking()
+                    .Where(x => EF.Functions.Like(x.Description.ToLower(), searchTerm))
+                    .Select(x => new ProductViewModel()
+                    {
+                        Id = x.Id,
+                        Category = x.Category,
+                        Price = x.Price,
+                        AverageRating = x.ProductReviews.Any() ? (x.ProductReviews.Sum(x => x.Rating) / x.ProductReviews.Count) : 0,
+                        Images = x.Images.Select(x => x.Url).Take(2).ToList(),
+                        ProductSizes = x.ProductSizes
+                        .Where(x => x.Count != 0)
+                        .Select(x => x.Size.Name)
+                        .ToList()
+                    })
+                    .AsQueryable();
+
+                return searchProducts;
+            }
+
+            return null;
         }
     }
 }
