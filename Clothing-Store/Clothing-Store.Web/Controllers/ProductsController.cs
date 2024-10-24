@@ -9,7 +9,6 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using System.Linq;
-    using System.Text;
     public class ProductsController : ControllerBase
     {
         private readonly IProductsService productsService;
@@ -32,9 +31,16 @@
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
-            var products = this.productsService.GetAllProductsAsQueryable(model);
+            IQueryable<ProductViewModel> products;
 
-            products = this.productsService.FilterProductsAsQueryable(model, products);
+            if (model.SelectedSizes == null && model.MaxPrice == null && model.MaxPrice == null)
+            {
+                 products = this.productsService.GetAllProductsAsQueryable(model, null, null);
+            }
+            else
+            {
+                products = this.productsService.FilterProductsAsQueryable(model);
+            }
 
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
@@ -71,9 +77,16 @@
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
-            var products = this.productsService.GetAllProductsByGenderAsQueryable(model, true, productName);
+            IQueryable<ProductViewModel> products;
 
-            products = this.productsService.FilterProductsAsQueryable(model, products);
+            if (model.SelectedSizes == null && model.MaxPrice == null && model.MaxPrice == null)
+            {
+                products = this.productsService.GetAllProductsAsQueryable(model, null, null);
+            }
+            else
+            {
+                products = this.productsService.FilterProductsAsQueryable(model);
+            }
 
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
@@ -97,9 +110,16 @@
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
-            var products = this.productsService.GetAllProductsByGenderAsQueryable(model, false, productName);
+            IQueryable<ProductViewModel> products;
 
-            products = this.productsService.FilterProductsAsQueryable(model, products);
+            if (model.SelectedSizes == null && model.MaxPrice == null && model.MaxPrice == null)
+            {
+                products = this.productsService.GetAllProductsAsQueryable(model, null, null);
+            }
+            else
+            {
+                products = this.productsService.FilterProductsAsQueryable(model);
+            }
 
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
@@ -195,7 +215,7 @@
             {
                 return NotFound();
             }
-            products = this.productsService.FilterProductsAsQueryable(model, products);
+            products = this.productsService.FilterProductsAsQueryable(model);
             var paginated = await PaginatedList<ProductViewModel>.CreateAsync(products, page, 12);
 
             var viewModel = new PaginatedViewModel<ProductViewModel>

@@ -8,7 +8,10 @@
     using Clothing_Store.Data.Repositories;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Caching.Memory;
+    using Microsoft.Extensions.Logging;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -29,50 +32,37 @@
             this.sizesRepository = sizesRepository;
             this.usersManager = usersManager;
         }
-        public IQueryable<ProductViewModel> GetAllProductsByGenderAsQueryable(
+        public IQueryable<ProductViewModel> GetAllProductsAsQueryable(
             PaginatedViewModel<ProductViewModel> model,
-            bool isMale,
-            string productName)
+            bool? isMale,
+            string? productName)
         {
-            var products = this.productsRepository
-                .AllAsNoTracking()
-                .Where(x => x.IsMale == isMale &&
-                (string.IsNullOrWhiteSpace(productName) || x.Category == productName))
-                .Select(x => new ProductViewModel()
-                {
-                    Id = x.Id,
-                    Category = x.Category,
-                    Price = x.Price,
-                    AverageRating = x.ProductReviews.Any() ? (x.ProductReviews.Sum(x => x.Rating) / x.ProductReviews.Count) : 0,
-                    Images = x.Images.Select(x => x.Url).Take(2).ToList(),
-                    ProductSizes = x.ProductSizes
-                    .Where(x => x.Count != 0)
-                    .Select(x => x.Size.Name)
-                    .ToList()
-                })
-                .AsQueryable();
+            IQueryable<ProductViewModel> products = GetAllProductsFromDbAsQueryable(isMale, productName);
 
             return products;
         }
 
-        public IQueryable<ProductViewModel> GetAllProductsAsQueryable(PaginatedViewModel<ProductViewModel> model)
+        private IQueryable<ProductViewModel> GetAllProductsFromDbAsQueryable(bool? isMale, string? productName)
         {
             var products = this.productsRepository
-                .AllAsNoTracking()
-                .Select(x => new ProductViewModel()
-                {
-                    Id = x.Id,
-                    Category = x.Category,
-                    Price = x.Price,
-                    AverageRating = x.ProductReviews.Any() ? (x.ProductReviews.Sum(x => x.Rating) / x.ProductReviews.Count) : 0,
-                    Images = x.Images.Select(x => x.Url).Take(2).ToList(),
-                    ProductSizes = x.ProductSizes
-                    .Where(x => x.Count != 0)
-                    .Select(x => x.Size.Name)
-                    .ToList()
-                })
-                .AsQueryable();
-
+                                .AllAsNoTracking()
+                                .Where(x =>
+                                    (!isMale.HasValue || x.IsMale == isMale) && // Check if isMale is not null
+                                    (string.IsNullOrWhiteSpace(productName) || x.Category == productName) // Check if productName is not empty
+                                )
+                                .Select(x => new ProductViewModel()
+                                {
+                                    Id = x.Id,
+                                    Category = x.Category,
+                                    Price = x.Price,
+                                    AverageRating = x.ProductReviews.Any() ? (x.ProductReviews.Sum(r => r.Rating) / x.ProductReviews.Count) : 0,
+                                    Images = x.Images.Select(img => img.Url).Take(2).ToList(),
+                                    ProductSizes = x.ProductSizes
+                                        .Where(size => size.Count != 0)
+                                        .Select(size => size.Size.Name)
+                                        .ToList()
+                                })
+                                .AsQueryable();
             return products;
         }
 
@@ -93,7 +83,7 @@
                     .ToList(),
                     Images = x.Images.Select(x => x.Url)
                     .ToList(),
-                    
+
                 })
                 .FirstOrDefaultAsync();
 
@@ -104,7 +94,7 @@
         {
             int countOfReviews = await this.GetProductReviewsCountAsync(productId);
             double averageRatingOfProduct = await this.CalculateAverageOfCurrentProduct(productId);
-            
+
             var product = await this.productsRepository
                 .AllAsNoTracking()
                 .Where(x => x.Id == productId)
@@ -123,13 +113,14 @@
                     TwoStars = x.ProductReviews.Where(x => x.Rating == 2.0).Count() != 100 ? x.ProductReviews.Where(x => x.Rating == 2.0).Count() : 100,
                     OneStar = x.ProductReviews.Where(x => x.Rating == 1.0).Count() != 100 ? x.ProductReviews.Where(x => x.Rating == 1.0).Count() : 100,
                     AverageRating = averageRatingOfProduct,
-                    PercentageOfAverageStars = double.Parse(averageRatingOfProduct.ToString("F1")) *  20,
+                    PercentageOfAverageStars = double.Parse(averageRatingOfProduct.ToString("F1")) * 20,
                     IsProductInStock = x.ProductSizes.Any(x => x.Count != 0),
                     Reviews = x.ProductReviews
                     .OrderByDescending(x => x.Date)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
-                    .Select(x => new GetProductReviewViewModel() {
+                    .Select(x => new GetProductReviewViewModel()
+                    {
                         ProductId = x.ProductId,
                         UserFullName = x.UserFullName,
                         Rating = x.Rating,
@@ -214,8 +205,8 @@
 
             var recommendedProducts = await this.productsRepository
                 .AllAsNoTracking()
-                .Where(x => x.IsMale == product.IsMale && 
-                            x.Id != product.Id && 
+                .Where(x => x.IsMale == product.IsMale &&
+                            x.Id != product.Id &&
                             x.Price <= product.Price &&
                             x.Category == product.Category &&
                             x.ProductSizes.Any(x => x.Count != 0))
@@ -248,39 +239,39 @@
             return productNames;
         }
 
-        public IQueryable<ProductViewModel> FilterProductsAsQueryable(PaginatedViewModel<ProductViewModel> model, IQueryable<ProductViewModel> products)
+        public IQueryable<ProductViewModel> FilterProductsAsQueryable(PaginatedViewModel<ProductViewModel> model)
         {
-            if (!string.IsNullOrWhiteSpace(model.SelectedProducts))
-            {
-                products = products.Where(x => model.SelectedProducts.Contains(x.Category));
-            }
+              var  products = GetAllProductsFromDbAsQueryable(null, null);
 
+                if (!string.IsNullOrWhiteSpace(model.SelectedProducts))
+                {
+                    products = products.Where(x => model.SelectedProducts.Contains(x.Category));
+                }
 
-            if (!string.IsNullOrWhiteSpace(model.SelectedSizes))
-            {
-                string[] splitSelectedSizes = model.SelectedSizes.Split(",");
-                products = products.Where(x => x.ProductSizes.Any(x => splitSelectedSizes.Contains(x)));
-            }
+                if (!string.IsNullOrWhiteSpace(model.SelectedSizes))
+                {
+                    string[] splitSelectedSizes = model.SelectedSizes.Split(",");
+                    products = products.Where(x => x.ProductSizes.Any(x => splitSelectedSizes.Contains(x)));
+                }
 
+                if (model.MinPrice.HasValue)
+                {
+                    products = products.Where(p => Math.Round(p.Price) >= model.MinPrice.Value);
+                }
 
-            if (model.MinPrice.HasValue)
-            {
-                products = products.Where(p => Math.Round(p.Price) >= model.MinPrice.Value);
-            }
+                if (model.MaxPrice.HasValue)
+                {
+                    products = products.Where(p => Math.Round(p.Price) <= model.MaxPrice.Value);
+                }
 
-            if (model.MaxPrice.HasValue)
-            {
-                products = products.Where(p => Math.Round(p.Price) <= model.MaxPrice.Value);
-            }
-
-            switch (model.Sorting)
-            {
-                case SortEnum.Default: products = products.AsQueryable(); break;
-                case SortEnum.AverageRating: products = products.OrderByDescending(x => x.AverageRating); break;
-                case SortEnum.PriceAsc: products = products.OrderBy(x => x.Price); break;
-                case SortEnum.PriceDesc: products = products.OrderByDescending(x => x.Price); break;
-            }
-
+                switch (model.Sorting)
+                {
+                    case SortEnum.Default: products = products.AsQueryable(); break;
+                    case SortEnum.AverageRating: products = products.OrderByDescending(x => x.AverageRating); break;
+                    case SortEnum.PriceAsc: products = products.OrderBy(x => x.Price); break;
+                    case SortEnum.PriceDesc: products = products.OrderByDescending(x => x.Price); break;
+                }
+           
             return products;
         }
 

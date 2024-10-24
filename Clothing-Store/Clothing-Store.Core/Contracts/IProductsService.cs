@@ -7,12 +7,6 @@
     public interface IProductsService
     {
         /// <summary>
-        /// Getting all products.
-        /// </summary>
-        /// <returns></returns>
-        IQueryable<ProductViewModel> GetAllProductsAsQueryable(PaginatedViewModel<ProductViewModel> model);
-
-        /// <summary>
         /// Getting current product by his id.
         /// </summary>
         /// <param name="productId"></param>
@@ -30,7 +24,7 @@
         /// Getting all products by gender.
         /// </summary>
         /// <returns></returns>
-        IQueryable<ProductViewModel> GetAllProductsByGenderAsQueryable(PaginatedViewModel<ProductViewModel> model, bool isMale, string productName);
+        IQueryable<ProductViewModel> GetAllProductsAsQueryable(PaginatedViewModel<ProductViewModel> model, bool? isMale, string? productName);
 
         Task<IEnumerable<SizeViewModel>> GetAllSizesAsync();
 
@@ -40,8 +34,7 @@
 
         Task<List<string>> GetProductNamesAsync();
 
-        IQueryable<ProductViewModel> FilterProductsAsQueryable(PaginatedViewModel<ProductViewModel> model,
-            IQueryable<ProductViewModel> products);
+        IQueryable<ProductViewModel> FilterProductsAsQueryable(PaginatedViewModel<ProductViewModel> model);
 
         IQueryable<ProductViewModel> SearchProductsByQueryAsQueryable(PaginatedViewModel<ProductViewModel> model, string searchBy);
     }
