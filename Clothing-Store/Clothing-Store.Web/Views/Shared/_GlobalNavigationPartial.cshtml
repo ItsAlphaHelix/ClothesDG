@@ -38,18 +38,10 @@
                                 <a asp-area="" asp-controller="Home" asp-action="Index">Начална страница</a>
                             </li>
                             <li class="menu-item-has-children">
-                                <a asp-area="" asp-controller="Products" asp-action="All">Магазин <i class="fa fa-caret-down" aria-hidden="true"></i></a>
-                                <div class="mg-sub-menu-outer">
-                                    <div class="menu-subs">
-                                        <ul>
-                                            <li><a asp-area="" asp-controller="Products" asp-action="AllMenProducts">Мъжка Колекция</a></li>
-                                            <li><a asp-area="" asp-controller="Products" asp-action="AllWomenProducts">Женска Колекция</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
+                                <a asp-area="" asp-controller="Products" asp-action="All">Всички продукти</a>
                             </li>
                             <li class="menu-item-has-children">
-                                <a asp-area="" asp-controller="Products" asp-action="AllMenProducts">Мъжка Колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                <a asp-area="" asp-controller="Products" asp-action="AllMenProducts">Мъжка колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
                                 <div class="mg-sub-menu-outer">
                                     <div class="menu-subs">
                                         <div class="container">
@@ -74,9 +66,8 @@
                                     </div>
                                 </div>
                             </li>
-
                             <li class="menu-item-has-children">
-                                <a asp-area="" asp-controller="Products" asp-action="AllWomenProducts">Женска Колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                <a asp-area="" asp-controller="Products" asp-action="AllWomenProducts">Женска колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
                                 <div class="mg-sub-menu-outer">
                                     <div class="menu-subs">
                                         <div class="container">
@@ -102,24 +93,21 @@
                                 </div>
                             </li>
 
-                            @if(isCustomerHasOrders)
+                            @* @if(isCustomerHasOrders)
                             {
                                 <li class="menu-item">
                                     <a asp-area="" asp-controller="Orders" asp-action="MineOrders">Моите поръчки</a>
                                 </li>
-                            }
+                            } *@
                             <li class="menu-item">
                                 <a href="contact-us.html">Контакти</a>
                             </li>
                             @if (this.User?.Identity?.IsAuthenticated ?? false)
                             {
                                 <li class="menu-item">
-                                    <a asp-area="Identity" asp-page="/Account/Manage/Profile">Моят Профил</a>
+                                    <a asp-area="Identity" asp-page="/Account/Manage/Profile">Моят профил</a>
                                 </li>
                             }
-                            <li class="menu-item">
-                                <a asp-area="Administration" asp-controller="Dashboard" asp-action="Index">Администрация</a>
-                            </li>
                         </ul>
                     </nav>
                     <div>

@@ -11,6 +11,8 @@
     var user = await usersManager.FindByNameAsync(this.User.Identity.Name);
 }
 
+<link rel="stylesheet" href="~/lib/sweetalert2/sweetalert2.min.css" asp-append-version="true" />
+
 <div class="mg-breadcrumb-outer">
             <div class="container-fluid gx-5">
                 <nav aria-label="breadcrumb">
@@ -110,44 +112,46 @@
         </div>
 
 @section Scripts{
+    <script src="~/lib/sweetalert2/sweetalert2.min.js" asp-append-version="true"></script>
     <script>
 
         function deleteOrder(stripePaymentStatus, numberOfOrder) {
             let text = '';
             if (stripePaymentStatus === 'paid') {
-                text = 'Ако пожелате да изтриете поръчката, парите Ви ще бъдат върнати.'
-            }else {
-                text = '';
+                text = 'Ако пожелате да изтриете поръчката, парите Ви ще бъдат върнати.';
             }
-            swal({
-                title: "Сиргурен ли сте, че искате да изтриете поръчката?",
+
+            Swal.fire({
+                title: "Сигурен ли сте, че искате да изтриете поръчката?",
                 text: text,
                 icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            })
-                .then((willDelete) => {
-                    if (willDelete) {
-                        $.ajax({
-                            type: "GET",
-                            url: '/Orders/RefundOrder',
-                            data: { numberOfOrder },
-                            success: function () {
-                                swal("Поръчката Ви беше успешно изтрита.", {
-                                    icon: "success",
-                                }).then(function () {
-                                    let page = @Model.Models.PageNumber;
+                showCancelButton: true,
+                confirmButtonText: "Да",
+                cancelButtonText: "Не",
+                reverseButtons: true, // To make "Да" the default confirm button
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: '/Orders/RefundOrder',
+                        data: { numberOfOrder },
+                        success: function () {
+                            Swal.fire({
+                                text: "Поръчката Ви беше успешно изтрита.",
+                                icon: "success",
+                            }).then(function () {
+                                let page = @Model.Models.PageNumber;
 
-                                    if (@Model.Models.Count - 1 == 0) {
-                                        page--;
-                                    }
-                                    console.log('@Model.Models.Count')
-                                    window.location.href = `/Orders/MineOrders?page=${page}`;
-                                });
-                            }
-                        });
-                    }
-                });
+                                if (@Model.Models.Count - 1 === 0) {
+                                    page--;
+                                }
+                                console.log('@Model.Models.Count');
+                                window.location.href = `/Orders/MineOrders?page=${page}`;
+                            });
+                        }
+                    });
+                }
+            });
         }
 
     </script>
