@@ -18,13 +18,14 @@
             services.AddScoped<IPaymentsService, PaymentsService>();
             services.AddScoped<ICustomersService, CustomersService>();
             services.AddScoped<IScrape, Scrape>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddNotyf(configuration =>
             {
                 configuration.DurationInSeconds = 5;
                 configuration.IsDismissable = true;
                 configuration.Position = NotyfPosition.TopRight;
             });
-
+            
             return services;
         }
     }

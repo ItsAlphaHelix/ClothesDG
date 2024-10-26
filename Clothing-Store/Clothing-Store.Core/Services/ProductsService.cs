@@ -1,11 +1,14 @@
 ﻿namespace Clothing_Store.Core.Services
 {
+    using AutoMapper;
     using Clothing_Store.Core.Contracts;
     using Clothing_Store.Core.ViewModels.Products;
     using Clothing_Store.Core.ViewModels.Reviews;
     using Clothing_Store.Core.ViewModels.Shared;
     using Clothing_Store.Data.Data.Models;
     using Clothing_Store.Data.Repositories;
+    using global::AutoMapper;
+    using global::AutoMapper.QueryableExtensions;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Caching.Memory;
@@ -21,16 +24,19 @@
         private readonly IRepository<ProductReviews> productReviewsRepository;
         private readonly IRepository<Size> sizesRepository;
         private readonly UserManager<ApplicationUser> usersManager;
+        private readonly IMapper mapper;
         public ProductsService(
             IRepository<Product> productsRepository,
             IRepository<ProductReviews> productReviewsRepository,
             IRepository<Size> sizesRepository,
-            UserManager<ApplicationUser> usersManager)
+            UserManager<ApplicationUser> usersManager,
+            IMapper mapper)
         {
             this.productsRepository = productsRepository;
             this.productReviewsRepository = productReviewsRepository;
             this.sizesRepository = sizesRepository;
             this.usersManager = usersManager;
+            this.mapper = mapper;
         }
         public IQueryable<ProductViewModel> GetAllProductsAsQueryable(
             PaginatedViewModel<ProductViewModel> model,
@@ -42,50 +48,33 @@
             return products;
         }
 
-        private IQueryable<ProductViewModel> GetAllProductsFromDbAsQueryable(bool? isMale, string? productName)
-        {
-            var products = this.productsRepository
-                                .AllAsNoTracking()
-                                .Where(x =>
-                                    (!isMale.HasValue || x.IsMale == isMale) && // Check if isMale is not null
-                                    (string.IsNullOrWhiteSpace(productName) || x.Category == productName) // Check if productName is not empty
-                                )
-                                .Select(x => new ProductViewModel()
-                                {
-                                    Id = x.Id,
-                                    Category = x.Category,
-                                    Price = x.Price,
-                                    AverageRating = x.ProductReviews.Any() ? (x.ProductReviews.Sum(r => r.Rating) / x.ProductReviews.Count) : 0,
-                                    Images = x.Images.Select(img => img.Url).Take(2).ToList(),
-                                    ProductSizes = x.ProductSizes
-                                        .Where(size => size.Count != 0)
-                                        .Select(size => size.Size.Name)
-                                        .ToList()
-                                })
-                                .AsQueryable();
-            return products;
-        }
-
         public async Task<ProductViewModel> GetProductByIdAsync(int productId)
         {
+
             var product = await this.productsRepository
                 .AllAsNoTracking()
                 .Where(x => x.Id == productId)
-                .Select(x => new ProductViewModel()
-                {
-                    Id = x.Id,
-                    Category = x.Category,
-                    Price = x.Price,
-                    IsProductInStock = x.ProductSizes.Any(x => x.Count != 0),
-                    ProductSizes = x.ProductSizes
-                    .Where(x => x.Count != 0)
-                    .Select(x => x.Size.Name)
-                    .ToList(),
-                    Images = x.Images.Select(x => x.Url)
-                    .ToList(),
-
-                })
+                .ProjectTo<ProductViewModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
+
+            //var product = await this.productsRepository
+            //    .AllAsNoTracking()
+            //    .Where(x => x.Id == productId)
+            //    .Select(x => new ProductViewModel()
+            //    {
+            //        Id = x.Id,
+            //        Category = x.Category,
+            //        Price = x.Price,
+            //        IsProductInStock = x.ProductSizes.Any(x => x.Count != 0),
+            //        ProductSizes = x.ProductSizes
+            //        .Where(x => x.Count != 0)
+            //        .Select(x => x.Size.Name)
+            //        .ToList(),
+            //        Images = x.Images.Select(x => x.Url)
+            //        .ToList(),
+
+            //    })
+            //    .FirstOrDefaultAsync();
 
             return product;
         }
@@ -144,18 +133,17 @@
 
         public async Task PostProductReviewAsync(PostProductReviewViewModel productReview, string userId)
         {
-            var user = await this.usersManager.FindByIdAsync(userId);
-            string userFullName = $"{user.FirstName} {user.LastName}";
+            var review = mapper.Map<ProductReviews>(productReview);
 
-            var review = new ProductReviews()
-            {
-                ProductId = productReview.ProductId,
-                UserFullName = userFullName,
-                Rating = productReview.Rating,
-                Message = productReview.Message,
-                Date = DateTime.Now,
-                UserProfileImageUrl = user.ProfileImageUrl,
-            };
+            //var review = new ProductReviews()
+            //{
+            //    ProductId = productReview.ProductId,
+            //    UserFullName = productReview.UserFullName,
+            //    Rating = productReview.Rating,
+            //    Message = productReview.Message,
+            //    Date = DateTime.Now,
+            //    UserProfileImageUrl = productReview.UserProfileImageUrl,
+            //};
 
             var product = await this.productsRepository
                 .All()
@@ -166,14 +154,11 @@
         }
 
 
-        public async Task<IEnumerable<SizeViewModel>> GetAllSizesAsync()
+        public async Task<List<string>> GetAllSizesAsync()
         {
             var sizes = await this.sizesRepository
                 .AllAsNoTracking()
-                .Select(x => new SizeViewModel()
-                {
-                    SizeName = x.Name
-                })
+                .Select(x => x.Name)
                 .ToListAsync();
 
             return sizes;
@@ -243,11 +228,6 @@
         {
               var  products = GetAllProductsFromDbAsQueryable(null, null);
 
-                if (!string.IsNullOrWhiteSpace(model.SelectedProducts))
-                {
-                    products = products.Where(x => model.SelectedProducts.Contains(x.Category));
-                }
-
                 if (!string.IsNullOrWhiteSpace(model.SelectedSizes))
                 {
                     string[] splitSelectedSizes = model.SelectedSizes.Split(",");
@@ -284,26 +264,69 @@
                 var searchTerm = $"%{baseForm}%";
 
                 var searchProducts = this.productsRepository
-                    .AllAsNoTracking()
-                    .Where(x => EF.Functions.Like(x.Description.ToLower(), searchTerm))
-                    .Select(x => new ProductViewModel()
-                    {
-                        Id = x.Id,
-                        Category = x.Category,
-                        Price = x.Price,
-                        AverageRating = x.ProductReviews.Any() ? (x.ProductReviews.Sum(x => x.Rating) / x.ProductReviews.Count) : 0,
-                        Images = x.Images.Select(x => x.Url).Take(2).ToList(),
-                        ProductSizes = x.ProductSizes
-                        .Where(x => x.Count != 0)
-                        .Select(x => x.Size.Name)
-                        .ToList()
-                    })
-                    .AsQueryable();
+                   .AllAsNoTracking()
+                   .OrderByDescending(x => x.ProductReviews.Average(x => x.Rating))
+                   .Where(x => EF.Functions.Like(x.Description.ToLower(), searchTerm))
+                   .ProjectTo<ProductViewModel>(this.mapper.ConfigurationProvider)
+                   .AsQueryable();
+
+                //var searchProducts = this.productsRepository
+                //    .AllAsNoTracking()
+                //    .Where(x => EF.Functions.Like(x.Description.ToLower(), searchTerm))
+                //    .Select(x => new ProductViewModel()
+                //    {
+                //        Id = x.Id,
+                //        Category = x.Category,
+                //        Price = x.Price,
+                //        AverageRating = x.ProductReviews.Any() ? (x.ProductReviews.Sum(x => x.Rating) / x.ProductReviews.Count) : 0,
+                //        Images = x.Images.Select(x => x.Url).Take(2).ToList(),
+                //        ProductSizes = x.ProductSizes
+                //        .Where(x => x.Count != 0)
+                //        .Select(x => x.Size.Name)
+                //        .ToList()
+                //    })
+                //    .AsQueryable();
 
                 return searchProducts;
             }
 
             return null;
+        }
+
+        private IQueryable<ProductViewModel> GetAllProductsFromDbAsQueryable(bool? isMale, string? productName)
+        {
+
+            var products = this.productsRepository
+                                .AllAsNoTracking()
+                                .OrderByDescending(x => x.ProductReviews.Average(x => x.Rating))
+                                .Where(x =>
+                                    (!isMale.HasValue || x.IsMale == isMale) && // Check if isMale is not null
+                                    (string.IsNullOrWhiteSpace(productName) || x.Category == productName) // Check if productName is not empty
+                                )
+                                .ProjectTo<ProductViewModel>(this.mapper.ConfigurationProvider)
+                                .AsQueryable();
+
+            //var products = this.productsRepository
+            //                    .AllAsNoTracking()
+            //                    .Where(x =>
+            //                        (!isMale.HasValue || x.IsMale == isMale) && // Check if isMale is not null
+            //                        (string.IsNullOrWhiteSpace(productName) || x.Category == productName) // Check if productName is not empty
+            //                    )
+            //                    .Select(x => new ProductViewModel()
+            //                    {
+            //                        Id = x.Id,
+            //                        Category = x.Category,
+            //                        Price = x.Price,
+            //                        AverageRating = x.ProductReviews.Any() ? x.ProductReviews.Average(x => x.Rating) : 0,
+            //                        Images = x.Images.Select(img => img.Url).Take(2).ToList(),
+            //                        ProductSizes = x.ProductSizes
+            //                            .Where(size => size.Count != 0)
+            //                            .Select(size => size.Size.Name)
+            //                            .ToList()
+            //                    })
+            //                    .OrderByDescending(x => x.AverageRating)
+            //                    .AsQueryable();
+            return products;
         }
     }
 }

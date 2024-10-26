@@ -24,7 +24,7 @@ function incrementQuantity() {
 }
 
 
-function addProductToBag(productId, page, sorting, selectedProducts, minPrice, maxPrice, selectedSizes, searchBy) {
+function addProductToBag(productId, page, sorting, productName, minPrice, maxPrice, selectedSizes, searchBy) {
 
     var activeSizeElement = $('.mg-size-variant-outer ul li.active')[0];
     var sizeName = " ";
@@ -57,28 +57,27 @@ function addProductToBag(productId, page, sorting, selectedProducts, minPrice, m
                 return window.location.href = ' ';
             }
 
-            var action = getCurrentAction();
-            var controller = getCurrentController(action);
+            let action = getCurrentAction();
+            let controller = getCurrentController(action);
 
-            var resultSelectedProducts = selectedProducts.length !== 0 ? `&selectedProducts=${selectedProducts}` : ' ';
-            var resultMinPrice = minPrice !== '' ? `&minPrice=${minPrice}` : ' ';
-            var resultMaxPrice = maxPrice !== '' ? `&maxPrice=${maxPrice}` : ' ';
-            var resultSelectedSizes = selectedSizes.length !== 0 ? `&selectedSizes=${selectedSizes}` : ' ';
-            var resultSearchBy = searchBy !== ' ' && searchBy != undefined ? `&searchBy=${searchBy}` : ' ';
+            let resultProductName = productName.length !== 0 ? `&productName=${productName}` : '';
+            let resultPrice = `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+            let resultSelectedSizes = selectedSizes.length !== 0 ? `&selectedSizes=${selectedSizes}` : ' ';
+            let resultSearchBy = searchBy !== ' ' && searchBy != undefined ? `&searchBy=${searchBy}` : ' ';
 
-            window.location.href = `/${controller}/${action}?page=${page}&sorting=${sorting}${resultSelectedProducts}${resultMinPrice}${resultMaxPrice}${resultSelectedSizes}${resultSearchBy}`;
+            window.location.href = `/${controller}/${action}?page=${page}&sorting=${sorting}${resultProductName}${resultPrice}${resultSelectedSizes}${resultSearchBy}`;
         },
         error: function (xhr, status, error) {
             console.log(xhr.responseText)
-            //var jsonResponse = JSON.parse(xhr.responseText);
-            //var errorMessage = jsonResponse;
+            var jsonResponse = JSON.parse(xhr.responseText);
+            var errorMessage = jsonResponse;
 
-            //if (errorMessage.sizeError) {
-            //    displayErrorMessage(errorMessage.sizeError, 'size-error-message');
-            //} if (errorMessage.quantityError) {
-            //    displayErrorMessage(errorMessage.quantityError, 'quantity-error-message');
-            //    clearErrorMessage('size-error-message')
-            //}
+            if (errorMessage.sizeError) {
+                displayErrorMessage(errorMessage.sizeError, 'size-error-message');
+            } if (errorMessage.quantityError) {
+                displayErrorMessage(errorMessage.quantityError, 'quantity-error-message');
+                clearErrorMessage('size-error-message')
+            }
         }
     });
 }

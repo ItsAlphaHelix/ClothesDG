@@ -6,6 +6,7 @@ using Clothing_Store.Middlewares;
 using Clothing_Store.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);

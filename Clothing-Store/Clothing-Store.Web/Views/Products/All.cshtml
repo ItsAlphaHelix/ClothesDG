@@ -17,10 +17,10 @@
         function handleAddToBagClick(productId) {
             const page = '@ViewData["CurrentPage"]';
             const sorting = '@ViewData["CurrentSort"]';
+            const productName = '@ViewData["ProductName"]';
             const minPrice = '@Model.MinPrice';
             const maxPrice = '@Model.MaxPrice';
-
-            addProductToBag(productId, page, sorting, selectedProducts, minPrice, maxPrice, selectedSizes);
+          addProductToBag(productId, page, sorting, productName, minPrice, maxPrice, selectedSizes);
         }
     </script>
 }

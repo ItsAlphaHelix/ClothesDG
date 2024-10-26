@@ -26,7 +26,7 @@
         /// <returns></returns>
         IQueryable<ProductViewModel> GetAllProductsAsQueryable(PaginatedViewModel<ProductViewModel> model, bool? isMale, string? productName);
 
-        Task<IEnumerable<SizeViewModel>> GetAllSizesAsync();
+        Task<List<string>> GetAllSizesAsync();
 
         Task PostProductReviewAsync(PostProductReviewViewModel productReview, string userId);
 

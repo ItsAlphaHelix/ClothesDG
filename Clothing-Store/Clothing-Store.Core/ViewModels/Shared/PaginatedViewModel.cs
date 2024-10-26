@@ -8,7 +8,7 @@
 
         public SortEnum Sorting { get; set; }
 
-        public string SelectedProducts { get; set; }
+        public string ProductName { get; set; }
 
         public string SelectedPrice { get; set; }
 

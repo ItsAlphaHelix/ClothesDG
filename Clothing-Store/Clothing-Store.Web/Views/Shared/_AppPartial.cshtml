@@ -9,20 +9,22 @@
 @{
     var sizes = await this.productsService.GetAllSizesAsync();
     string url = Context.Request.Path;
+
     string navigation = string.Empty;
-    bool isMan = true;
+
+    string productName = Context.Request.Query["productName"];
+
     if (url.Contains("AllMenProducts"))
     {
-        navigation = "Всички мъжки продукти";
+        navigation = $"Всички мъжки продукти {(string.IsNullOrEmpty(productName) ? " " : " / " + productName)}";
     }
     else if (url.Contains("AllWomenProducts"))
     {
-        navigation = "Всички женски продукти";
-        isMan = false;
+        navigation = $"Всички женски продукти {(string.IsNullOrEmpty(productName) ? " " : " / " + productName)}";
     }
-    else if (url.Contains("ProductsByQuery"))
+    else if (url.Contains("Search"))
     {
-        navigation = "Намерени продукти";
+        navigation = $"Намерени продукти";
     }
     else
     {
@@ -74,10 +76,10 @@
 
                                                     @foreach (var size in sizes)
                                                     {
-                                                        <li class="@(selectedSizes.Contains(size.SizeName) ? "active" : "")">
-                                                            <a value="@size.SizeName"
-                                                               onclick="toggleCheckbox(event, '@Html.Raw(size.SizeName)')">
-                                                                @size.SizeName
+                                                        <li class="@(selectedSizes.Contains(size) ? "active" : "")">
+                                                            <a value="@size"
+                                                               onclick="toggleCheckbox(event, '@Html.Raw(size)')">
+                                                                @size
                                                             </a>
                                                         </li>
                                                     }
@@ -159,7 +161,7 @@
                                             <a class="page-link" aria-label="Previous"
                                                asp-route-page="@(Model.Models.PageNumber - 1)"
                                                asp-route-sorting="@(ViewData["CurrentSort"].ToString() != "Default" ? ViewData["CurrentSort"] : "")"
-                                               asp-route-productName="@ViewData["CurrentSelectedProducts"]"
+                                                   asp-route-productName="@ViewData["ProductName"]"
                                                asp-route-minPrice="@(Model.MinPrice == 0 && Model.MaxPrice == 100 ? "" : Model.MinPrice)"
                                                asp-route-maxPrice="@(Model.MaxPrice == 100 && Model.MinPrice == 0 ? "" : Model.MaxPrice)"
                                                asp-route-selectedSizes="@ViewData["CurrentSelectedSizes"]"
@@ -184,7 +186,7 @@
                                                 <a class="page-link @(Model.Models.PageNumber == i ? "active" : "")"
                                                    asp-route-page="@i"
                                                    asp-route-sorting="@(ViewData["CurrentSort"].ToString() != "Default" ? ViewData["CurrentSort"] : "")"
-                                                   asp-route-productName="@ViewData["CurrentSelectedProducts"]"
+                                                   asp-route-productName="@ViewData["ProductName"]"
                                                    asp-route-minPrice="@(Model.MinPrice == 0 && Model.MaxPrice == 100 ? "" : Model.MinPrice)"
                                                    asp-route-maxPrice="@(Model.MaxPrice == 100 && Model.MinPrice == 0 ? "" : Model.MaxPrice)"
                                                    asp-route-selectedSizes="@ViewData["CurrentSelectedSizes"]"
@@ -196,8 +198,8 @@
                                             <a class="page-link" aria-label="Next"                                       
                                                asp-route-page="@(Model.Models.PageNumber + 1)"
                                                asp-route-sorting="@(ViewData["CurrentSort"].ToString() != "Default" ? ViewData["CurrentSort"] : "")"
-                                               asp-route-productName="@ViewData["CurrentSelectedProducts"]"
-                                                asp-route-minPrice="@(Model.MinPrice == 0 && Model.MaxPrice == 100 ? "" : Model.MinPrice)"
+                                               asp-route-productName="@ViewData["ProductName"]"
+                                               asp-route-minPrice="@(Model.MinPrice == 0 && Model.MaxPrice == 100 ? "" : Model.MinPrice)"
                                                asp-route-maxPrice="@(Model.MaxPrice == 100 && Model.MinPrice == 0 ? "" : Model.MaxPrice)"
                                                asp-route-selectedSizes="@ViewData["CurrentSelectedSizes"]"
                                                asp-route-searchBy="@ViewData["CurrentSearchWord"]">

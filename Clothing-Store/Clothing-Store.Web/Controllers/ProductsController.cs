@@ -27,7 +27,6 @@
             ViewData["IsHomePage"] = false;
             ViewData["CurrentPage"] = page;
             ViewData["CurrentSort"] = model.Sorting;
-            ViewData["CurrentSelectedProducts"] = model.SelectedProducts;
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
@@ -73,7 +72,7 @@
             ViewData["IsHomePage"] = false;
             ViewData["CurrentPage"] = page;
             ViewData["CurrentSort"] = model.Sorting;
-            ViewData["CurrentSelectedProducts"] = productName;
+            ViewData["ProductName"] = model.ProductName;
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
@@ -81,7 +80,7 @@
 
             if (model.SelectedSizes == null && model.MaxPrice == null && model.MaxPrice == null)
             {
-                products = this.productsService.GetAllProductsAsQueryable(model, null, null);
+                products = this.productsService.GetAllProductsAsQueryable(model, true, productName);
             }
             else
             {
@@ -106,7 +105,7 @@
             ViewData["IsHomePage"] = false;
             ViewData["CurrentPage"] = page;
             ViewData["CurrentSort"] = model.Sorting;
-            ViewData["CurrentSelectedProducts"] = productName;
+            ViewData["ProductName"] = productName;
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
@@ -114,7 +113,7 @@
 
             if (model.SelectedSizes == null && model.MaxPrice == null && model.MaxPrice == null)
             {
-                products = this.productsService.GetAllProductsAsQueryable(model, null, null);
+                products = this.productsService.GetAllProductsAsQueryable(model, false, productName);
             }
             else
             {
@@ -205,7 +204,7 @@
             ViewData["CurrentSearchWord"] = searchBy;
             ViewData["CurrentPage"] = page;
             ViewData["CurrentSort"] = model.Sorting;
-            ViewData["CurrentSelectedProducts"] = model.SelectedProducts;
+            ViewData["ProductName"] = model.ProductName;
             ViewData["CurrentSelectedSizes"] = model.SelectedSizes;
             ViewData["CurrentSelectedPrice"] = model.SelectedPrice;
 
