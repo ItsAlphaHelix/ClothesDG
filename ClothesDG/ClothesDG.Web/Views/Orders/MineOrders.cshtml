@@ -1,0 +1,158 @@
+﻿@using ClothesDG.Core.ViewModels.Orders;
+@using ClothesDG.Core.ViewModels.Shared;
+@using ClothesDG.Data.Data.Models;
+@using Microsoft.AspNetCore.Identity;
+@model PaginatedViewModel<OrderViewModel>
+@inject UserManager<ApplicationUser> usersManager;
+
+@{
+    ViewData["Title"] = "Моите поръчки";
+    var userName = this.User.Identity.Name;
+    var user = await usersManager.FindByNameAsync(this.User.Identity.Name);
+}
+
+<link rel="stylesheet" href="~/lib/sweetalert2/sweetalert2.min.css" asp-append-version="true" />
+
+<div class="mg-breadcrumb-outer">
+            <div class="container-fluid gx-5">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Начална страница</a></li>
+                        <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                    </ol>
+                </nav>
+            </div>
+</div>
+        <!--MG Breadcrumb End Here-->
+        <!--MG Page Start Here-->
+        <div class="mg-page-outer">
+            <div class="container-lg gx-lg-5 gx-md-4">
+                <div class="mg-my-order-page-outer">
+                    <div class="mg-user-profile-details-outer text-center">
+                        <div class="mg-user-image">
+                    <img src="@(user.ProfileImageUrl == null ? "/images/pngs/profile.png" : user.ProfileImageUrl)" alt="" />
+                        </div>
+                        <div class="mg-profile-user-name">
+                            <h2>@user.FirstName @user.LastName</h2>
+                        </div>
+                        <div class="mg-profile-user-login-details">
+                            <p>@user.PhoneNumber <a href="#"><i class="fa fa-pencil" aria-hidden="true"></i></a></p>
+                            <p>@user.Email <a href=""><i class="fa fa-pencil" aria-hidden="true"></i></a></p>
+                        </div>
+                    </div>
+                    <div class="mg-order-details-list-outer">
+                     <h4>@ViewData["Title"]</h4>
+                     <div class="order-list-heading-main"></div>
+                       @foreach (var order in Model.Models)
+                        {
+                    <div class="mg-order-detail-list-grid">
+                        <div class="row gx-2">
+                            <div class="col-8">
+                                <h5>Номер на поръчката:  @order.NumberOfOrder</h5>
+                                 <br>
+                                <a asp-action="OrderDetails" asp-route-numberOfOrder="@order.NumberOfOrder" class="btn btn-outline-primary" role="button" aria-pressed="true">Вижте продуктите</a>
+                                <a onclick="deleteOrder('@order.StripePaymentStatus', '@order.NumberOfOrder')" class="btn btn-outline-danger" style="margin-left: 10px" role="button" aria-pressed="true">Отказване на поръчката</a>
+
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="mg-right-order-tittles mg-order-details">
+                                    <div>Дата на създаване: <span>@order.OrderDate</span></div>
+                                    <div>Доставка: <span>5,00 ЛВ</span></div>
+                                    <div class="order-detil-grand-total">Цена на поръчка плюс доставка: @order.TotalPrice.ToString("F2") ЛВ</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }                      
+                    </div>
+                    <!-- Pagination start -->
+            @if (Model.Models.TotalPages > 1)
+            {
+                <div class="mg-pagination-outer mt-3">
+                    <nav>
+                        <ul class="pagination justify-content-center align-items-center">
+                            <li class="page-item pagination-nextprev @(Model.Models.HasPreviousPage ? "" : "disabled")">
+                                <a class="page-link" aria-label="Previous"
+                                   asp-route-page="@(Model.Models.PageNumber - 1)">
+                                    <img src="~/images/pngs/mg-arrow-left.png" alt="" />
+                                </a>
+                            </li>
+
+                            @{
+                                int startPage = Math.Max(1, Model.Models.PageNumber - 4);
+                                int endPage = Math.Min(Model.Models.TotalPages, startPage + 9);
+
+                                if (Model.Models.TotalPages >= 10 && endPage - startPage < 9)
+                                {
+                                    startPage = Math.Max(1, endPage - 9);
+                                }
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link @(Model.Models.PageNumber == i ? "active" : "")"
+                                       asp-route-page="@i">@i</a>
+                                </li>
+                            }
+
+                            <li class="page-item pagination-nextprev @(Model.Models.HasNextPage ? "" : "disabled")">
+                                <a class="page-link" aria-label="Next"
+                                   asp-route-page="@(Model.Models.PageNumber + 1)">
+                                    <img src="~/images/pngs/mg-arrow-right.png" alt="" />
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+                    <!-- Pagination end -->
+                </div>
+            </div>
+        </div>
+
+@section Scripts{
+    <script src="~/lib/sweetalert2/sweetalert2.min.js" asp-append-version="true"></script>
+    <script>
+
+        function deleteOrder(stripePaymentStatus, numberOfOrder) {
+            let text = '';
+            if (stripePaymentStatus === 'paid') {
+                text = 'Ако пожелате да изтриете поръчката, парите Ви ще бъдат върнати.';
+            }
+
+            Swal.fire({
+                title: "Сигурен ли сте, че искате да изтриете поръчката?",
+                text: text,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Да",
+                cancelButtonText: "Не",
+                reverseButtons: true, // To make "Да" the default confirm button
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: '/Orders/RefundOrder',
+                        data: { numberOfOrder },
+                        success: function () {
+                            Swal.fire({
+                                text: "Поръчката Ви беше успешно изтрита.",
+                                icon: "success",
+                            }).then(function () {
+                                let page = @Model.Models.PageNumber;
+
+                                if (@Model.Models.Count - 1 === 0) {
+                                    page--;
+                                }
+                                console.log('@Model.Models.Count');
+                                window.location.href = `/Orders/MineOrders?page=${page}`;
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+    </script>
+}
