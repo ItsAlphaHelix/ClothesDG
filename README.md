@@ -47,7 +47,6 @@
 
 ### Here you can view the use's all successfully completed orders.
 ![image](https://github.com/ItsAlphaHelix/Clothing-Store/blob/main/Pngs/My-Orders.png?raw=true)
-(url)
 ## 🔨 Built Using
  
 - ASP.NET Core 7.0
