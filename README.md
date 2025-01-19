@@ -6,7 +6,7 @@
 
 ### Every user who visits the site is automatically assigned a user ID, which is stored as a cookie. After 1 month, this cookie changes, and therefore all products saved in the user's shopping bag are deleted. To prevent the deletion of the user's shopping bag, it is desirable for them to create an account. Then they will have a single ID, which will be stored in the database along with all their activity. This means that their orders, product ratings, and so on will be saved forever.
 
-## Home Page
+[## Home Page
 ![image](https://github.com/ItsAlphaHelix/Clothing-Store/blob/main/Pngs/Homepage.png?raw=true)
 
 ## Register Page
@@ -47,7 +47,7 @@
 
 ### Here you can view the use's all successfully completed orders.
 ![image](https://github.com/ItsAlphaHelix/Clothing-Store/blob/main/Pngs/My-Orders.png?raw=true)
-
+](url)
 ## 🔨 Built Using
  
 - ASP.NET Core 7.0
