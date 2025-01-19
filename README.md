@@ -51,7 +51,6 @@
  
 - ASP.NET Core 7.0
 - Microsoft.AspNetCore.Identity
-- MS SQL
 - ASP.NET Core WebAPI
 - Entity Framework Core 7.0
 - MSSQL Server
