@@ -26,7 +26,7 @@
         <div class="row gx-0 gx-md-2 align-items-center">
             <div class="col-md-2 col-lg-3 col-5">
                 <div class="header-logo">
-                    <a><img class="img-fluid" src="~/images/pngs/Clothing-Store-Logo1.png" alt="" /></a>
+                    <a><img class="img-fluid" src="~/images/pngs/ClothesDGHome.png" alt="" /></a>
                 </div>
             </div>
             <div class="col-md-5 col-2 order-3 order-md-0 d-flex  justify-content-end mg-center-menu-align justify-content-md-center">
@@ -40,10 +40,10 @@
                         </div>
                         <ul class="menu-section mg-menu-outer">
                             <li class="menu-item-has-children">
-                                <a asp-area="" asp-controller="Products" asp-action="All">Всички продукти</a>
+                                <a asp-area="" asp-controller="Products" asp-action="All" class="fs-6">Всички продукти</a>
                             </li>
                             <li class="menu-item-has-children">
-                                <a asp-area="" asp-controller="Products" asp-action="AllMenProducts">Мъжка колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                <a asp-area="" asp-controller="Products" asp-action="AllMenProducts" class="fs-6">Мъжка колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
                                 <div class="mg-sub-menu-outer">
                                     <div class="menu-subs">
                                         <div class="container">
@@ -69,7 +69,7 @@
                                 </div>
                             </li>
                             <li class="menu-item-has-children">
-                                <a asp-area="" asp-controller="Products" asp-action="AllWomenProducts">Женска колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                <a asp-area="" asp-controller="Products" asp-action="AllWomenProducts" class="fs-6">Женска колекция <i class="fa fa-caret-down" aria-hidden="true"></i></a>
                                 <div class="mg-sub-menu-outer">
                                     <div class="menu-subs">
                                         <div class="container">
@@ -95,12 +95,12 @@
                                 </div>
                             </li>
                             <li class="menu-item">
-                                <a href="contact-us.html">Контакти</a>
+                                <a href="contact-us.html" class="fs-6">Контакти</a>
                             </li>
                             @if (this.User?.Identity?.IsAuthenticated ?? false)
                             {
                                 <li class="menu-item">
-                                    <a asp-area="Identity" asp-page="/Account/Manage/Profile">Моят профил</a>
+                                    <a asp-area="Identity" asp-page="/Account/Manage/Profile" class="fs-6">Моят профил</a>
                                 </li>
                             }
                         </ul>
@@ -123,7 +123,7 @@
                                 <div class="input-group">
                                     <div class="form-outline">
                                         <form id="searchForm" asp-controller="Products" asp-action="Search" method="get">
-                                            <input name="searchBy" type="search" placeholder="Потърси тук.." class="form-control">
+                                            <input name="searchBy" type="search" placeholder="Потърси тук.." class="form-control fs-6">
                                         </form>
                                     </div>
                                     <button type="button" class="btn" id="searchButton">

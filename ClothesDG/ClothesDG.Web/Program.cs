@@ -11,7 +11,7 @@ using Stripe;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("ClothesDGConnectionString") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ClothesDGContext>(options =>
     options.UseSqlServer(connectionString));
@@ -37,7 +37,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeSettings:SecretKey");
+StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("SecretKey");
 builder.Services.AddApplicationServices(builder.Configuration);
 var app = builder.Build();
 
