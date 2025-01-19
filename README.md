@@ -43,7 +43,7 @@
 ![image](https://github.com/ItsAlphaHelix/Clothing-Store/blob/main/Pngs/Order-Confirmation.png?raw=true)
 
 ### Here you see the user's stripe payment view.
-![image](https://github.com/ItsAlphaHelix/Clothing-Store/blob/main/Pngs/Stripe-Online-Payment.png?raw=true)
+![image](https://github.com/ItsAlphaHelix/Clothing-Store/blob/main/Pngs/Stripe-Payment.png?raw=true)
 
 ### Here you can view the use's all successfully completed orders.
 ![image](https://github.com/ItsAlphaHelix/Clothing-Store/blob/main/Pngs/My-Orders.png?raw=true)
@@ -51,7 +51,6 @@
  
 - ASP.NET Core 7.0
 - Microsoft.AspNetCore.Identity
-- MS SQL
 - ASP.NET Core WebAPI
 - Entity Framework Core 7.0
 - MSSQL Server
